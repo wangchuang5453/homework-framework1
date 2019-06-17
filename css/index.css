@@ -1,8 +1,14 @@
 .outer-wrapper {
     width: 200px;
+    height: 200px;
     overflow: hidden;
     position: relative;
     display: flex;
+}
+.outer-wrapper a {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 .img-wrapper {
     display: flex;

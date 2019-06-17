@@ -13,11 +13,9 @@ $.fn.marquee = function (options = {}) {
   const { time = 1000 } = options
   const _this = $(this)
   const $imgs = _this.find('img')
-  const $firstImg = $($imgs[0])
-  const width = $firstImg.width()
-  let index = 0
-  let numOfImg = $imgs.length
-  let timer = null, wrapper = null
+  const width = $($imgs[0]).width()
+  const numOfImg = $imgs.length
+  let curIndex = 0, timer = null, wrapper = null, $img_wrapper = null 
   // 初始化dom
   init()
   // 轮播
@@ -58,34 +56,45 @@ $.fn.marquee = function (options = {}) {
         .append(item)
       return tag
     })
-    _this.append($(`<div class="img-wrapper"></div>`).append(doms))
-    wrapper = $('.img-wrapper')
-    wrapper.find('a:eq(0)').clone().appendTo(wrapper)
+    _this.append(doms)
+    _this.find('a:eq(0)').clone().appendTo(_this)
     // 添加箭头
     _this.append(arrowLeft)
     _this.append(arrowRight)
+    $img_wrapper = _this.find('a')
+    resetPosition()
   }
   function right() {
-    index++
+    curIndex++
+    if (curIndex > numOfImg) {
+      resetPosition()
+      curIndex = 1
+    }
     render()
   }
   function left() {
-    index--
+    curIndex--
+    if (curIndex < 0) {
+      resetPosition(numOfImg)
+      curIndex = numOfImg - 1
+    }
     render()
   }
   function render() {
-    if (wrapper.is(":animated")) {
+    Array.from($img_wrapper).forEach((item, index) => {
+      renderItem(item, index)
+    })
+  }
+  function renderItem(dom, index) {
+    const $dom = $(dom)
+    if ($dom.is(":animated")) {
       return;
     }
-    if (index < 0) {
-      index = numOfImg - 1
-      wrapper.css("left", -(width * numOfImg));
-    }
-    wrapper.stop(true, true).animate({left: -(width * index)}, 300, '', function() {
-      if (index > numOfImg - 1) {
-        index = 0
-        $(this).css("left", 0);
-      }
+    $dom.stop(true, true).animate({left: width * (index - curIndex)}, 300)
+  }
+  function resetPosition(curIndex = 0) {
+    Array.from($img_wrapper).forEach((item, index) => {
+      $(item).css('left', width * (index - curIndex))
     })
   }
   function start() {
